@@ -26,9 +26,7 @@ class PageFinder:
 
     def _page_url(self, term):
         response = _http_request(
-            self._method,
-            _WIKI_URL + term,
-            {"timeout": _REQ_TIMEOUT},
+            self._method, _WIKI_URL + term, timeout=_REQ_TIMEOUT
         )
         if response.status_code == requests.codes.not_found:
             raise ValueError(_ERR_NOPAGE.format(term))
@@ -37,11 +35,11 @@ class PageFinder:
         return response.url
 
 
-def _http_request(method, url, args):
+def _http_request(method, url, **kwargs):
     for _ in range(0, _MAX_RETRIES):
         req_exc = None
         try:
-            resp = method(url, **args)
+            resp = method(url, **kwargs)
             break
         except RequestException as e:
             req_exc = e
