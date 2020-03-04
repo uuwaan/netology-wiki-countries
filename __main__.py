@@ -1,4 +1,5 @@
 import json
+import requests
 
 import wikipedia
 import ratelim
@@ -26,8 +27,9 @@ def main():
     rlim = ratelim.TokenBucket(API_RATELIMIT)
     terms = terms_list(COUNTRIES_FILE)
     nterms = len(terms)
-    with open(LINKS_FILE, "w", encoding="utf-8") as out_file:
-        for idx, (term, url) in enumerate(wikipedia.PageFinder(terms)):
+    with open(LINKS_FILE, "w", encoding="utf-8") as out_file, \
+            requests.Session() as sess:
+        for idx, (term, url) in enumerate(wikipedia.PageFinder(terms, sess)):
             out_file.writelines((FMT_OUTPUT.format(term, url), "\n"))
             pacman.update(FMT_PROGRESS.format(idx + 1, nterms))
             rlim.wait(1)

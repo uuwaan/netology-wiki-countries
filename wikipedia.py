@@ -10,24 +10,23 @@ _ERR_NOPAGE = "No page for term: {0}"
 
 
 class PageFinder:
-    def __init__(self, terms):
+    def __init__(self, terms, session=None):
         self._iter = iter(terms)
-        self._session = requests.Session()
+        if session is None:
+            self._method = requests.head
+        else:
+            self._method = session.head
 
     def __iter__(self):
         return self
 
     def __next__(self):
-        try:
-            term = next(self._iter)
-            return term, self._page_url(term)
-        except Exception:
-            self._session.close()
-            raise
+        term = next(self._iter)
+        return term, self._page_url(term)
 
     def _page_url(self, term):
         response = _http_request(
-            self._session.head,
+            self._method,
             _WIKI_URL + term,
             {"timeout": _REQ_TIMEOUT},
         )
